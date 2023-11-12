@@ -94,7 +94,7 @@ def save_checkpoint(state, is_best, config):
 
 def load_state(path, model, optimizer=None):
 
-    rank = dist.get_rank()
+    rank =0#  dist.get_rank()
 
     def map_func(storage, location):
         return storage.cuda()

@@ -40,7 +40,7 @@ def build_cifar10_dataloader(cfg, training, distributed=True):
         resize=cfg["input_size"],
         normals=cfg["normals"],
     )
-
+    
     if distributed:
         sampler = DistributedSampler(dataset)
     else:
@@ -100,7 +100,7 @@ class CIFAR10(Dataset):
 
         self.transform = transforms.Compose(
             [
-                transforms.Resize(resize, Image.ANTIALIAS),
+                transforms.Resize(resize),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
