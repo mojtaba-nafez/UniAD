@@ -38,6 +38,8 @@ parser.add_argument('--normal_labels', help='normal_labels',
                         default="0,1,2,3,4", type=str)
 parser.add_argument('--epochs', help='epochs',
                         default=200, type=int)
+parser.add_argument('--batch_size', help='batch_size',
+                        default=128, type=int)
 parser.add_argument('--model_type', help='backbone of model',
                         default="models.backbones.efficientnet_b4", type=str)
 
@@ -61,6 +63,7 @@ def main():
     config.dataset.normals = normal_sets
     config.net[0].type = args.model_type
     config.trainer.max_epoch   = args.epochs
+    config.dataset.batch_size = args.batch_size
     config = update_config(config)
 
     if rank == 0:
