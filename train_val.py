@@ -36,6 +36,8 @@ parser.add_argument("-e", "--evaluate", action="store_true")
 parser.add_argument("--local_rank", default=None, help="local rank for dist")
 parser.add_argument('--normal_labels', help='normal_labels',
                         default="0,1,2,3,4", type=str)
+parser.add_argument('--epochs', help='epochs',
+                        default=200, type=int)
 parser.add_argument('--model_type', help='backbone of model',
                         default="models.backbones.efficientnet_b4", type=str)
 
@@ -58,6 +60,7 @@ def main():
     normal_sets = [int(num) for num in args.normal_labels.split(',')]
     config.dataset.normals = normal_sets
     config.net[0].type = args.model_type
+    config.trainer.max_epoch   = args.epochs
     config = update_config(config)
 
     if rank == 0:
