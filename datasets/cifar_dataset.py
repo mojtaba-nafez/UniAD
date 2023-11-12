@@ -153,10 +153,10 @@ class CIFAR10(Dataset):
                 _data_defect.append(datum)
                 _targets_defect.append(target)
 
-        if not self.train:
-            ids = random.sample(range(len(_data_defect)), len(_data_normal))
-            _data_defect = [_data_defect[idx] for idx in ids]
-            _targets_defect = [_targets_defect[idx] for idx in ids]
+        # if not self.train:
+        #    ids = random.sample(range(len(_data_defect)), len(_data_normal))
+        #    _data_defect = [_data_defect[idx] for idx in ids]
+        #    _targets_defect = [_targets_defect[idx] for idx in ids]
 
         self.data = _data_normal + _data_defect
         self.targets = _targets_normal + _targets_defect
