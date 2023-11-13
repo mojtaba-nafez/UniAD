@@ -33,7 +33,6 @@ def build_fmnist_dataloader(cfg, training, distributed=True):
     else:
         dataset = FashionMNIST(root='./', train=False, download=True,
                            normal_set=cfg["normals"], transform=transform)
-    print(dataset[0])
     sampler = RandomSampler(dataset)
     data_loader = DataLoader(
         dataset,
@@ -42,10 +41,6 @@ def build_fmnist_dataloader(cfg, training, distributed=True):
         pin_memory=True,
         sampler=sampler,
     )
-    print("--------3")
-    for i, input in enumerate(data_loader):
-        print("i")
-    print("--------4")
     return data_loader
 
 import torchvision
@@ -87,11 +82,25 @@ class FashionMNIST(torchvision.datasets.MNIST):
 
     def __getitem__(self, index: int):
         img, target = self.data[index], int(self.targets[index])
-        print(img.shape, self.transform)
         img = Image.fromarray(img.numpy(), mode="L")
         if self.transform is not None:
             img = self.transform(img)
         if self.target_transform is not None:
             target = self.target_transform(target)
+        height = img[0].shape[1]
+        width = img[0].shape[2]
+        if target == 0:
+            mask = torch.zeros((1, height, width))
+        else:
+            mask = torch.ones((1, height, width))
 
-        return img, target
+        input = {
+            "filename": "{}/{}.jpg".format(classes[target], index),
+            "image": img,
+            "mask": mask,
+            "height": height,
+            "width": width,
+            "label": target,
+            "clsname": "fashion-mnist",
+        }
+        return input
