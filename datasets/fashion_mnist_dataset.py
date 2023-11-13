@@ -79,6 +79,9 @@ class FashionMNIST(torchvision.datasets.MNIST):
                 anomaly_indice.append(k)
         self.targets[normal_indice] = 0
         self.targets[anomaly_indice] = 1
+        if train:
+            self.targets = self.targets[normal_indice]
+            self.data = self.data[normal_indice]
 
     def __getitem__(self, index: int):
         img, target = self.data[index], int(self.targets[index])
