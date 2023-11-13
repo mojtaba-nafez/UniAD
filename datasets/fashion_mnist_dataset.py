@@ -20,15 +20,13 @@ classes = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat", "Sandal", "Shi
         
 def build_fmnist_dataloader(cfg, training, distributed=True):
     logger.info("building CustomDataset from: {}".format(cfg["root_dir"]))
-    print("--------1")
     transform = transforms.Compose([
-                    transforms.Resize((cfg["input_size"], cfg["input_size"])),
+                    transforms.Resize((cfg["input_size"][0], cfg["input_size"][1])),
                     transforms.Grayscale(num_output_channels=3),
                     transforms.ToTensor(),
                     transforms.Normalize(
                         mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
-                    ),])
-    
+                    ),])    
     if training:
         dataset = FashionMNIST(root='./', train=True,download=True,
                            normal_set=cfg["normals"], transform=transform)
@@ -36,7 +34,6 @@ def build_fmnist_dataloader(cfg, training, distributed=True):
         dataset = FashionMNIST(root='./', train=False, download=True,
                            normal_set=cfg["normals"], transform=transform)
     print(dataset[0])
-    print("--------2")
     sampler = RandomSampler(dataset)
     data_loader = DataLoader(
         dataset,
