@@ -87,8 +87,8 @@ class FashionMNIST(torchvision.datasets.MNIST):
             img = self.transform(img)
         if self.target_transform is not None:
             target = self.target_transform(target)
-        height = img[0].shape[1]
-        width = img[0].shape[2]
+        height = img.shape[1]
+        width = img.shape[2]
         if target == 0:
             mask = torch.zeros((1, height, width))
         else:
