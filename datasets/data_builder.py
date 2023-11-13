@@ -2,6 +2,7 @@ import logging
 
 from datasets.cifar_dataset import build_cifar10_dataloader
 from datasets.custom_dataset import build_custom_dataloader
+from datasets.fashion_mnist_dataset import build_fmnist_dataloader
 
 logger = logging.getLogger("global")
 
@@ -17,6 +18,8 @@ def build(cfg, training, distributed):
         data_loader = build_custom_dataloader(cfg, training, distributed)
     elif dataset == "cifar10":
         data_loader = build_cifar10_dataloader(cfg, training, distributed)
+    elif dataset == "fashion-mnist":
+        data_loader = build_fmnist_dataloader(cfg, training, distributed)
     else:
         raise NotImplementedError(f"{dataset} is not supported")
 
