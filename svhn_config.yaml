@@ -22,7 +22,7 @@ criterion:
 trainer:
   max_epoch: 200
   clip_max_norm: 0.1
-  val_freq_epoch: 1
+  val_freq_epoch: 10
   print_freq_step: 200
   tb_freq_step: 1
   lr_scheduler:
