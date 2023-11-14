@@ -321,6 +321,7 @@ def validate(val_loader, model):
         shutil.rmtree(config.evaluator.eval_dir)
         # evaluate, log & vis
         ret_metrics = performances(fileinfos, preds, masks, config.evaluator.metrics)
+        print("1")
         log_metrics(ret_metrics, config.evaluator.metrics)
         
     model.train()
