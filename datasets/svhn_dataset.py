@@ -101,6 +101,10 @@ class SVHN(VisionDataset):
         if split=='train':
             self.labels = self.labels[normal_indice]
             self.data = self.data[normal_indice]
+        if split=='test':
+            ids = random.sample(range(len(self.labels)), 15000)
+            self.labels = self.labels[ids]
+            self.data = self.data[ids]
 
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
