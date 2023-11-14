@@ -7,6 +7,7 @@ import tabulate
 import torch
 import torch.nn.functional as F
 from sklearn import metrics
+import gc
 
 
 def dump(save_dir, outputs):
@@ -39,6 +40,7 @@ def merge_together(save_dir):
     fileinfos = []
     preds = []
     masks = []
+    gc.collect()
     for npz_file in npz_file_list:
         npz = np.load(npz_file)
         fileinfos.append(
@@ -51,7 +53,6 @@ def merge_together(save_dir):
         )
         preds.append(npz["pred"])
         masks.append(npz["mask"])
-        print(npz["pred"].shape, npz["mask"].shape)
     preds = np.concatenate(np.asarray(preds), axis=0)  # N x H x W
     masks = np.concatenate(np.asarray(masks), axis=0)  # N x H x W
     return fileinfos, preds, masks
