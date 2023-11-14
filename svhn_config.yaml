@@ -8,7 +8,7 @@ dataset:
     root_dir: ./svhn
   test: 
     root_dir: ./svhn
-  input_size: [224,224] # [h,w]
+  input_size: [128,128] # [h,w]
   normals: [0,1,2,3,4] #  [1,2,3,4,5,6,7,8,9]
   batch_size: 150
   workers: 4 # number of workers of dataloader for each process
