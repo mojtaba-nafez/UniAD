@@ -322,21 +322,7 @@ def validate(val_loader, model):
         # evaluate, log & vis
         ret_metrics = performances(fileinfos, preds, masks, config.evaluator.metrics)
         log_metrics(ret_metrics, config.evaluator.metrics)
-        if args.evaluate and config.evaluator.get("vis_compound", None):
-            visualize_compound(
-                fileinfos,
-                preds,
-                masks,
-                config.evaluator.vis_compound,
-                config.dataset.image_reader,
-            )
-        if args.evaluate and config.evaluator.get("vis_single", None):
-            visualize_single(
-                fileinfos,
-                preds,
-                config.evaluator.vis_single,
-                config.dataset.image_reader,
-            )
+        
     model.train()
     return ret_metrics
 
