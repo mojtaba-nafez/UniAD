@@ -319,9 +319,10 @@ def validate(val_loader, model):
         logger.info(" * Loss {:.5f}\ttotal_num={}".format(final_loss, total_num.item()))
         fileinfos, preds, masks = merge_together(config.evaluator.eval_dir)
         shutil.rmtree(config.evaluator.eval_dir)
+        print("11111111111")
         # evaluate, log & vis
         ret_metrics = performances(fileinfos, preds, masks, config.evaluator.metrics)
-        print("1")
+        print("222222222222")
         log_metrics(ret_metrics, config.evaluator.metrics)
         
     model.train()
