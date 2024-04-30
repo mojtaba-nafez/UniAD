@@ -4,6 +4,7 @@ from datasets.cifar_dataset import build_cifar10_dataloader
 from datasets.custom_dataset import build_custom_dataloader
 from datasets.fashion_mnist_dataset import build_fmnist_dataloader
 from datasets.svhn_dataset import build_svhn_dataloader
+from datasets.waterbirds_dataset import build_waterbirds_dataloader
 
 logger = logging.getLogger("global")
 
@@ -23,6 +24,8 @@ def build(cfg, training, distributed):
         data_loader = build_fmnist_dataloader(cfg, training, distributed)
     elif dataset == "svhn":
         data_loader = build_svhn_dataloader(cfg, training, distributed)
+    elif dataset == 'waterbirds':
+        data_loader = build_waterbirds_dataloader(cfg, training, distributed)
     else:
         raise NotImplementedError(f"{dataset} is not supported")
 
@@ -38,7 +41,7 @@ def build_dataloader(cfg_dataset, distributed=True):
     test_loader = None
     if cfg_dataset.get("test", None):
         test_loader = build(cfg_dataset, training=False, distributed=distributed)
-    print("test loader len", len(test_loader))
+    print("test loader len", len(test_loader[0]), len(test_loader[1]))
 
     logger.info("build dataset done")
-    return train_loader, test_loader
+    return train_loader, test_loader[0], test_loader[1]

@@ -35,13 +35,13 @@ parser.add_argument("--config", default="./mvtechad_config.yaml")
 parser.add_argument("-e", "--evaluate", action="store_true")
 parser.add_argument("--local_rank", default=None, help="local rank for dist")
 parser.add_argument('--normal_labels', help='normal_labels',
-                        default="0,1,2,3,4", type=str)
+                    default="0,1,2,3,4", type=str)
 parser.add_argument('--epochs', help='epochs',
-                        default=200, type=int)
+                    default=200, type=int)
 parser.add_argument('--batch_size', help='batch_size',
-                        default=128, type=int)
+                    default=128, type=int)
 parser.add_argument('--model_type', help='backbone of model',
-                        default="models.backbones.efficientnet_b4", type=str)
+                    default="models.backbones.efficientnet_b4", type=str)
 
 
 def main():
@@ -62,7 +62,7 @@ def main():
     normal_sets = [int(num) for num in args.normal_labels.split(',')]
     config.dataset.normals = normal_sets
     config.net[0].type = args.model_type
-    config.trainer.max_epoch   = args.epochs
+    config.trainer.max_epoch = args.epochs
     config.dataset.batch_size = args.batch_size
     config = update_config(config)
 
@@ -88,13 +88,13 @@ def main():
     # create model
     model = ModelHelper(config.net)
     model.cuda()
-    local_rank = 0 # int(os.environ["LOCAL_RANK"])
-    #model = DDP(
+    local_rank = 0  # int(os.environ["LOCAL_RANK"])
+    # model = DDP(
     #    model,
     #    device_ids=[local_rank],
     #    output_device=local_rank,
     #    find_unused_parameters=True,
-    #)
+    # )
 
     layers = []
     for module in config.net:
@@ -134,10 +134,28 @@ def main():
             load_path = os.path.join(config.exp_path, load_path)
         load_state(load_path, model)
 
-    train_loader, val_loader = build_dataloader(config.dataset, distributed=False)
+    train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False)
+
+    from matplotlib import pyplot as plt
+
+    def disp(image_list, title):
+        plt.figure(figsize=(10, 10), constrained_layout=True)
+        for i, img in enumerate(image_list):
+            ax = plt.subplot(1, len(image_list), i + 1)
+            plt.imshow(img.permute(1, 2, 0))
+            plt.title(title[i])
+            plt.axis('off')
+        return plt  # !python ma
+
+    loaders = [train_loader, val_loader1, val_loader2]
+    for loader in loaders:
+        x, y = next(iter(loader))
+        disp([x[i] for i in range(10)], [int(y[i]) for i in range(10)])
+        print('----------------------------------')
 
     if args.evaluate:
-        validate(val_loader, model)
+        validate(val_loader1, model)
+        validate(val_loader2, model)
         return
 
     criterion = build_criterion(config.criterion)
@@ -158,9 +176,30 @@ def main():
             frozen_layers,
         )
         lr_scheduler.step(epoch)
-
+        print('main:')
         if (epoch + 1) % config.trainer.val_freq_epoch == 0:
-            ret_metrics = validate(val_loader, model)
+            ret_metrics = validate(val_loader1, model)
+            # only ret_metrics on rank0 is not empty
+            if rank == 0:
+                ret_key_metric = ret_metrics[key_metric]
+                is_best = ret_key_metric >= best_metric
+                best_metric = max(ret_key_metric, best_metric)
+                logger.info(f"best_metric = {best_metric}")
+                save_checkpoint(
+                    {
+                        "epoch": epoch + 1,
+                        "arch": config.net,
+                        "state_dict": model.state_dict(),
+                        "best_metric": best_metric,
+                        "optimizer": optimizer.state_dict(),
+                    },
+                    is_best,
+                    config,
+                )
+
+        print('shifted:')
+        if (epoch + 1) % config.trainer.val_freq_epoch == 0:
+            ret_metrics = validate(val_loader2, model)
             # only ret_metrics on rank0 is not empty
             if rank == 0:
                 ret_key_metric = ret_metrics[key_metric]
@@ -181,17 +220,16 @@ def main():
 
 
 def train_one_epoch(
-    train_loader,
-    model,
-    optimizer,
-    lr_scheduler,
-    epoch,
-    start_iter,
-    tb_logger,
-    criterion,
-    frozen_layers,
+        train_loader,
+        model,
+        optimizer,
+        lr_scheduler,
+        epoch,
+        start_iter,
+        tb_logger,
+        criterion,
+        frozen_layers,
 ):
-
     batch_time = AverageMeter(config.trainer.print_freq_step)
     data_time = AverageMeter(config.trainer.print_freq_step)
     losses = AverageMeter(config.trainer.print_freq_step)
@@ -204,8 +242,8 @@ def train_one_epoch(
         for param in module.parameters():
             param.requires_grad = False
 
-    world_size = 1 # dist.get_world_size()
-    rank = 0 # dist.get_rank()
+    world_size = 1  # dist.get_world_size()
+    rank = 0  # dist.get_rank()
     logger = logging.getLogger("global_logger")
     end = time.time()
 
@@ -269,7 +307,7 @@ def validate(val_loader, model):
     losses = AverageMeter(0)
 
     model.eval()
-    rank = 0 # dist.get_rank()
+    rank = 0  # dist.get_rank()
     logger = logging.getLogger("global_logger")
     criterion = build_criterion(config.criterion)
     end = time.time()
@@ -322,7 +360,7 @@ def validate(val_loader, model):
         # evaluate, log & vis
         ret_metrics = performances(fileinfos, preds, masks, config.evaluator.metrics)
         log_metrics(ret_metrics, config.evaluator.metrics)
-        
+
     model.train()
     return ret_metrics
 
