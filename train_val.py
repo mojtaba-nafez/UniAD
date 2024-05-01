@@ -134,7 +134,11 @@ def main():
             load_path = os.path.join(config.exp_path, load_path)
         load_state(load_path, model)
 
-    train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False)
+    if config.dataset.get('type') == 'waterbirds':
+        train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False)
+    else:
+        train_loader, val_loader1 = build_dataloader(config.dataset, distributed=False)
+        val_loader2 = val_loader1
 
     from matplotlib import pyplot as plt
 
