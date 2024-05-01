@@ -156,6 +156,9 @@ def main():
 
     loaders = [train_loader, val_loader1, val_loader2]
     for loader in loaders:
+        print(loader)
+        print(type(loader))
+        print(loader.shape)
         x, y = next(iter(loader))
         disp([x[i] for i in range(10)], [int(y[i]) for i in range(10)], fig)
         fig += 1
