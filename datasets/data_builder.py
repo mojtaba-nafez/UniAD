@@ -41,7 +41,10 @@ def build_dataloader(cfg_dataset, distributed=True):
     test_loader = None
     if cfg_dataset.get("test", None):
         test_loader = build(cfg_dataset, training=False, distributed=distributed)
-    print("test loader len", len(test_loader[0]), len(test_loader[1]))
+    if cfg_dataset.get('type', None) == 'waterbirds':
+        print("test loader len", len(test_loader[0]), len(test_loader[1]))
+    else:
+        print("test loader len", len(test_loader[1]))
 
     logger.info("build dataset done")
     return train_loader, test_loader[0], test_loader[1]
