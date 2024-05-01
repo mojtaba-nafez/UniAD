@@ -7,6 +7,7 @@ from datasets.svhn_dataset import build_svhn_dataloader
 from datasets.waterbirds_dataset import build_waterbirds_dataloader
 from datasets.brain_dataset import build_brain_dataloader
 from datasets.isic_dataset import build_isic_dataloader
+from datasets.aptos_dataset import build_aptos_dataloader
 
 logger = logging.getLogger("global")
 
@@ -32,6 +33,8 @@ def build(cfg, training, distributed):
         data_loader = build_brain_dataloader(cfg, training, distributed)
     elif dataset == 'isic':
         data_loader = build_isic_dataloader(cfg, training, distributed)
+    elif dataset == 'aptos':
+        data_loader = build_aptos_dataloader(cfg, training, distributed)
     else:
         raise NotImplementedError(f"{dataset} is not supported")
 
@@ -48,7 +51,7 @@ def build_dataloader(cfg_dataset, distributed=True):
     if cfg_dataset.get("test", None):
         test_loader = build(cfg_dataset, training=False, distributed=distributed)
     logger.info("build dataset done")
-    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic']:
+    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos']:
         print("test loader len", len(test_loader[0]), len(test_loader[1]))
         return train_loader, test_loader[0], test_loader[1]
     else:
