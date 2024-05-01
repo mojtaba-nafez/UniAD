@@ -28,7 +28,7 @@ def build_isic_dataloader(cfg, training, distributed=True):
             mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
         ), ])
 
-    train_path = glob('/kaggle/input/isic-task3-dataset/dataset/train/NORMAL*')
+    train_path = glob('/kaggle/input/isic-task3-dataset/dataset/train/NORMAL/*')
     train_label = [0] * len(train_path)
     test_anomaly_path = glob('/kaggle/input/isic-task3-dataset/dataset/test/ABNORMAL/*')
     test_anomaly_label = [1] * len(test_anomaly_path)
