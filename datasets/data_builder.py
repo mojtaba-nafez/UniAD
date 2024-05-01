@@ -6,6 +6,7 @@ from datasets.fashion_mnist_dataset import build_fmnist_dataloader
 from datasets.svhn_dataset import build_svhn_dataloader
 from datasets.waterbirds_dataset import build_waterbirds_dataloader
 from datasets.brain_dataset import build_brain_dataloader
+from datasets.isic_dataset import build_isic_dataloader
 
 logger = logging.getLogger("global")
 
@@ -29,6 +30,8 @@ def build(cfg, training, distributed):
         data_loader = build_waterbirds_dataloader(cfg, training, distributed)
     elif dataset == 'brain':
         data_loader = build_brain_dataloader(cfg, training, distributed)
+    elif dataset == 'isic':
+        data_loader = build_isic_dataloader(cfg, training, distributed)
     else:
         raise NotImplementedError(f"{dataset} is not supported")
 
