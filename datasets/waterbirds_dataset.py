@@ -128,9 +128,17 @@ class Waterbird(torch.utils.data.Dataset):
         img = self.transform(img)
         gt = torch.zeros([1, img.size()[-2], img.size()[-2]])
         gt[:, :, 1:3] = 1
-        if self.train:
-            return img, 0
-        else:
-            # if self.return_num == 2:
-            #     return img, self.labels[idx]
-            return img, self.labels[idx]
+        height = img.shape[1]
+        width = img.shape[2]
+        target = 0 if self.train else self.labels[idx]
+
+        ret = {
+            'filename': os.path.basename(img_path),
+            'image': img,
+            'height': height,
+            'width': width,
+            'label': target,
+            'clsname': 'waterbirds',
+            'mask': torch.zeros((1, height, width)) if target == 0 else torch.ones((1, height, width))
+        }
+        return ret
