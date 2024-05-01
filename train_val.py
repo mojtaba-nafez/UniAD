@@ -156,8 +156,13 @@ def main():
 
     loaders = [train_loader, val_loader1, val_loader2]
     for loader in loaders:
-        print(next(iter(loader)))
-        x, y = next(iter(loader))
+        it = next(iter(loader))
+        print(it.keys())
+        print(len(it['filename']))
+        print(len(it['image']))
+        print(it['image'][0].shape)
+        print(len(it['height']))
+        x, y = it['image'], it['label']
         disp([x[i] for i in range(10)], [int(y[i]) for i in range(10)], fig)
         fig += 1
         print('----------------------------------')
