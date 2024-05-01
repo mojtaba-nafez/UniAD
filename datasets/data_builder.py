@@ -1,5 +1,6 @@
 import logging
 
+from datasets.camelyon_dataset import build_camelyon_dataloader
 from datasets.cifar_dataset import build_cifar10_dataloader
 from datasets.custom_dataset import build_custom_dataloader
 from datasets.fashion_mnist_dataset import build_fmnist_dataloader
@@ -35,6 +36,8 @@ def build(cfg, training, distributed):
         data_loader = build_isic_dataloader(cfg, training, distributed)
     elif dataset == 'aptos':
         data_loader = build_aptos_dataloader(cfg, training, distributed)
+    elif dataset == 'camelyon':
+        data_loader = build_camelyon_dataloader(cfg, training, distributed)
     else:
         raise NotImplementedError(f"{dataset} is not supported")
 
@@ -51,7 +54,7 @@ def build_dataloader(cfg_dataset, distributed=True):
     if cfg_dataset.get("test", None):
         test_loader = build(cfg_dataset, training=False, distributed=distributed)
     logger.info("build dataset done")
-    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos']:
+    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon']:
         print("test loader len", len(test_loader[0]), len(test_loader[1]))
         return train_loader, test_loader[0], test_loader[1]
     else:
