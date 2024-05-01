@@ -151,7 +151,7 @@ def main():
             plt.imshow(img.permute(1, 2, 0))
             plt.title(title[i])
             plt.axis('off')
-        plt.savefig(f'fig_{fig_name}')
+        plt.savefig(f'fig_{fig_name}_{config.dataset.get("type")}')
         return plt
 
     loaders = [train_loader, val_loader1, val_loader2]
