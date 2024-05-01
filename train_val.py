@@ -269,11 +269,8 @@ def train_one_epoch(
         data_time.update(time.time() - end)
 
         # forward
-        print(type(input))
-        print(input.shape)
         outputs = model(input)
-        print(type(outputs))
-        print(outputs.shape)
+
         loss = 0
         for name, criterion_loss in criterion.items():
             weight = criterion_loss.weight
