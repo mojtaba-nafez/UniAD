@@ -42,7 +42,7 @@ def build_isic_dataloader(cfg, training, distributed=True):
 
     shifted_test_label = df["diagnostic"].to_numpy()
     shifted_test_label = (shifted_test_label != "NEV")
-    shifted_test_label = [0 if shifted_test_label[i] is False else 1 for i in range(len(shifted_test_label))]
+    # shifted_test_label = [0 if shifted_test_label[i] is False else 1 for i in range(len(shifted_test_label))]
 
     shifted_test_path = df["img_id"].to_numpy()
     shifted_test_path = '/kaggle/input/pad-ufes-20/PAD-UFES-20/Dataset/' + shifted_test_path
