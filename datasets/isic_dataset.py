@@ -20,7 +20,7 @@ logger = logging.getLogger("global_logger")
 
 
 def build_isic_dataloader(cfg, training, distributed=True):
-    logger.info("building waterbirds dataset")
+    logger.info("building isic dataset")
     transform = transforms.Compose([
         transforms.Resize((cfg["input_size"][0], cfg["input_size"][1])),
         transforms.ToTensor(),
