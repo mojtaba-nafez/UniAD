@@ -190,8 +190,8 @@ def main():
             frozen_layers,
         )
         lr_scheduler.step(epoch)
-        print('main:')
         if (epoch + 1) % config.trainer.val_freq_epoch == 0:
+            print('main:')
             ret_metrics = validate(val_loader1, model)
             # only ret_metrics on rank0 is not empty
             if rank == 0:
@@ -211,8 +211,8 @@ def main():
                     config,
                 )
 
-        print('shifted:')
         if (epoch + 1) % config.trainer.val_freq_epoch == 0:
+            print('shifted:')
             ret_metrics = validate(val_loader2, model)
             # only ret_metrics on rank0 is not empty
             if rank == 0:
