@@ -138,19 +138,23 @@ def main():
 
     from matplotlib import pyplot as plt
 
-    def disp(image_list, title):
+    fig = 1
+
+    def disp(image_list, title, fig_name):
         plt.figure(figsize=(10, 10), constrained_layout=True)
         for i, img in enumerate(image_list):
             ax = plt.subplot(1, len(image_list), i + 1)
             plt.imshow(img.permute(1, 2, 0))
             plt.title(title[i])
             plt.axis('off')
-        return plt  # !python ma
+        plt.savefig(f'fig_{fig_name}')
+        return plt
 
     loaders = [train_loader, val_loader1, val_loader2]
     for loader in loaders:
         x, y = next(iter(loader))
-        disp([x[i] for i in range(10)], [int(y[i]) for i in range(10)])
+        disp([x[i] for i in range(10)], [int(y[i]) for i in range(10)], fig)
+        fig += 1
         print('----------------------------------')
 
     if args.evaluate:
@@ -255,7 +259,11 @@ def train_one_epoch(
         data_time.update(time.time() - end)
 
         # forward
+        print(type(input))
+        print(input.shape)
         outputs = model(input)
+        print(type(outputs))
+        print(outputs.shape)
         loss = 0
         for name, criterion_loss in criterion.items():
             weight = criterion_loss.weight
