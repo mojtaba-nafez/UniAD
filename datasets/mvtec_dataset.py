@@ -196,7 +196,7 @@ class MVTEC(data.Dataset):
             self.train_data = []
             self.train_labels = []
             cwd = os.getcwd()
-            trainFolder = self.root + '/' + category + '/train/good/'
+            trainFolder = self.root + category + '/train/good/'
             os.chdir(trainFolder)
             filenames = [f.name for f in os.scandir()]
             for file in filenames:
@@ -206,6 +206,7 @@ class MVTEC(data.Dataset):
                 self.train_data.append(img)
                 self.train_labels.append(1)
             os.chdir(cwd)
+            print(cwd)
 
             self.train_data = np.array(self.train_data)
         else:
@@ -214,11 +215,12 @@ class MVTEC(data.Dataset):
             self.test_labels = []
 
             cwd = os.getcwd()
-            testFolder = self.root + '/' + category + '/test/'
+            testFolder = self.root + category + '/test/'
             os.chdir(testFolder)
             subfolders = [sf.name for sf in os.scandir() if sf.is_dir()]
             #             print(subfolders)
             cwsd = os.getcwd()
+            print(cwsd)
 
             # for every subfolder in test folder
             for subfolder in subfolders:
