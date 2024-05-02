@@ -196,6 +196,9 @@ class MVTEC(data.Dataset):
             self.train_data = []
             self.train_labels = []
             cwd = os.getcwd()
+            print(cwd)
+            print(self.root)
+            print(category)
             trainFolder = self.root + category + '/train/good/'
             os.chdir(trainFolder)
             filenames = [f.name for f in os.scandir()]
