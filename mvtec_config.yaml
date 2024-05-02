@@ -4,6 +4,7 @@ port: 11111
 
 dataset:
   type: mvtec
+  categories: ['bottle', 'cable', 'capsule', 'carpet', 'grid', 'hazelnut', 'leather', 'metal_nut', 'pill', 'screw', 'tile', 'toothbrush', 'transistor', 'wood', 'zipper']
   train:
     root_dir: ./svhn
   test:

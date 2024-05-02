@@ -196,8 +196,6 @@ class MVTEC(data.Dataset):
             self.train_data = []
             self.train_labels = []
             cwd = os.getcwd()
-            print(cwd)
-            print(self.root)
             print(category)
             trainFolder = self.root + category + '/train/good/'
             os.chdir(trainFolder)
@@ -278,8 +276,8 @@ class MVTEC(data.Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        if self.target_transform is not None:
-            target = self.target_transform(target)
+        # if self.target_transform is not None:
+        #     target = self.target_transform(target)
 
         height = img.shape[1]
         width = img.shape[2]
