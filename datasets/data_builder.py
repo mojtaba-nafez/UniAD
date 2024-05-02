@@ -4,6 +4,7 @@ from datasets.camelyon_dataset import build_camelyon_dataloader
 from datasets.cifar_dataset import build_cifar10_dataloader
 from datasets.custom_dataset import build_custom_dataloader
 from datasets.fashion_mnist_dataset import build_fmnist_dataloader
+from datasets.mvtec_dataset import build_mvtec_dataloader
 from datasets.svhn_dataset import build_svhn_dataloader
 from datasets.waterbirds_dataset import build_waterbirds_dataloader
 from datasets.brain_dataset import build_brain_dataloader
@@ -38,6 +39,8 @@ def build(cfg, training, distributed):
         data_loader = build_aptos_dataloader(cfg, training, distributed)
     elif dataset == 'camelyon':
         data_loader = build_camelyon_dataloader(cfg, training, distributed)
+    elif dataset == 'mvtec':
+        data_loader = build_mvtec_dataloader(cfg, training, distributed)
     else:
         raise NotImplementedError(f"{dataset} is not supported")
 
@@ -54,7 +57,7 @@ def build_dataloader(cfg_dataset, distributed=True):
     if cfg_dataset.get("test", None):
         test_loader = build(cfg_dataset, training=False, distributed=distributed)
     logger.info("build dataset done")
-    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon']:
+    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon', 'mvtec']:
         print("test loader len", len(test_loader[0]), len(test_loader[1]))
         return train_loader, test_loader[0], test_loader[1]
     else:
