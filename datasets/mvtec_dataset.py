@@ -122,7 +122,7 @@ class IMAGENET30_TEST_DATASET(Dataset):
         return image, label
 
 
-imagenet30_testset = IMAGENET30_TEST_DATASET()
+
 
 # This is a modified version of original  https://github.com/pytorch/vision/blob/master/torchvision/datasets/cifar.py
 # This file and the mvtec data directory must be in the same directory, such that:
@@ -190,6 +190,7 @@ class MVTEC(data.Dataset):
             self.resize = int(resize * shrink_factor)
         self.interpolation = interpolation
         self.select_random_image_from_imagenet = select_random_image_from_imagenet
+        self.imagenet30_testset = IMAGENET30_TEST_DATASET()
 
         # load images for training
         if self.train:
@@ -260,9 +261,9 @@ class MVTEC(data.Dataset):
         img = Image.fromarray(img)
 
         if self.select_random_image_from_imagenet:
-            imagenet30_img = imagenet30_testset[int(random.random() * len(imagenet30_testset))][0].resize((224, 224))
+            imagenet30_img = self.imagenet30_testset[int(random.random() * len(self.imagenet30_testset))][0].resize((224, 224))
         else:
-            imagenet30_img = imagenet30_testset[100][0].resize((224, 224))
+            imagenet30_img = self.imagenet30_testset[100][0].resize((224, 224))
 
         # if resizing image
         if self.resize is not None:
