@@ -294,7 +294,7 @@ class MVTEC(data.Dataset):
             'mask': torch.zeros((1, height, width)) if target == 0 else torch.ones((1, height, width))
         }
 
-        return img, target
+        return ret
 
     def __len__(self):
         """
