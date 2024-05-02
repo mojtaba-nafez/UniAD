@@ -207,7 +207,7 @@ class MVTEC(data.Dataset):
                 img = img * 255
                 img = img.astype(np.uint8)
                 self.train_data.append(img)
-                self.train_labels.append(1)
+                self.train_labels.append(0)
             os.chdir(cwd)
             print(cwd)
 
