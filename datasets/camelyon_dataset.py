@@ -18,6 +18,9 @@ import pandas as pd
 
 logger = logging.getLogger("global_logger")
 
+ones = torch.ones((1, 224, 224))
+zeros = torch.zeros((1, 224, 224))
+
 
 def build_camelyon_dataloader(cfg, training, distributed=True):
     logger.info("building aptos dataset")
@@ -126,7 +129,7 @@ class Camelyon(Dataset):
             'width': width,
             'label': self.labels[index],
             'clsname': 'isic',
-            'mask': torch.zeros((1, height, width)) if self.labels[index] == 0 else torch.ones((1, height, width))
+            'mask': zeros if self.labels[index] == 0 else ones
         }
         return ret
 
