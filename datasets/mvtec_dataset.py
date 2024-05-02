@@ -41,7 +41,7 @@ def build_mvtec_dataloader(cfg, training, category='carpet'):
 
     if training:
         dataset = MVTEC(root='/kaggle/input/mvtec-ad/', train=True, transform=transform, category=category,
-                      use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=1)
+                      resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=1)
         sampler = RandomSampler(dataset)
         data_loader = DataLoader(
             dataset,
@@ -52,9 +52,9 @@ def build_mvtec_dataloader(cfg, training, category='carpet'):
         )
         return data_loader
     dataset_main = MVTEC(root='/kaggle/input/mvtec-ad/', train=False, transform=transform, category=category,
-                      use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=1)
+                      resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=1)
     dataset_shifted = MVTEC(root='/kaggle/input/mvtec-ad/', train=False, transform=transform, category=category,
-                      use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=0.9)
+                      resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=0.9)
     sampler = RandomSampler(dataset_main)
     data_loader = DataLoader(
         dataset_main,
