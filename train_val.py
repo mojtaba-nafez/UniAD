@@ -336,7 +336,7 @@ def validate(val_loader, model):
         for i, input in enumerate(val_loader):
             # forward
             outputs = model(input)
-            # dump(config.evaluator.eval_dir, outputs)
+            dump(config.evaluator.eval_dir, outputs)
 
             # record loss
             loss = 0
