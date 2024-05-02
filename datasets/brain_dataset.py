@@ -39,11 +39,11 @@ def build_brain_dataloader(cfg, training, distributed=True):
     brats_test_path = normal_test_brats + anomaly_brats
 
 
-    ### ADDING 150 Exposures
-    random.seed(1)
-    random_brats_images = random.sample(normal_train_brats, 150)
-    train_normal_path.extend(random_brats_images)
-    #########################
+    # ### ADDING 150 Exposures
+    # random.seed(1)
+    # random_brats_images = random.sample(normal_train_brats, 150)
+    # train_normal_path.extend(random_brats_images)
+    # #########################
 
 
     if training:
