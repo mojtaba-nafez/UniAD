@@ -131,7 +131,6 @@ imagenet30_testset = IMAGENET30_TEST_DATASET()
 # /.../this_directory/mvtec/cable/...
 # and so on
 
-from __future__ import print_function
 from PIL import Image
 import os
 import os.path
