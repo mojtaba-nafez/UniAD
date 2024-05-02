@@ -284,12 +284,12 @@ class MVTEC(data.Dataset):
         width = img.shape[2]
 
         ret = {
-            'filename': 'N/A',
+            'filename': os.path.basename(self.train_data[index] if self.train else self.test_data[index]),
             'image': img,
             'height': height,
             'width': width,
             'label': target,
-            'clsname': 'isic',
+            'clsname': 'mvtec',
             'mask': torch.zeros((1, height, width)) if target == 0 else torch.ones((1, height, width))
         }
 
