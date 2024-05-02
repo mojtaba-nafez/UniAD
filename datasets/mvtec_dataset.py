@@ -29,7 +29,7 @@ import pandas as pd
 logger = logging.getLogger("global_logger")
 
 
-def build_mvtec_dataloader(cfg, training, category='carpet'):
+def build_mvtec_dataloader(cfg, training, distributed=False, category='carpet'):
     logger.info("building mvtec dataset")
     transform = transforms.Compose([
         transforms.Resize((cfg["input_size"][0], cfg["input_size"][1])),
