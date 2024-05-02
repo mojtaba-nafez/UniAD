@@ -283,8 +283,10 @@ class MVTEC(data.Dataset):
         height = img.shape[1]
         width = img.shape[2]
 
+        state = 'train' if self.train else 'test'
+
         ret = {
-            'filename': os.path.basename(self.train_data[index] if self.train else self.test_data[index]),
+            'filename': f'{state}_{index}',
             'image': img,
             'height': height,
             'width': width,
