@@ -39,6 +39,8 @@ def build(cfg, training, distributed, category='carpet'):
         data_loader = build_aptos_dataloader(cfg, training, distributed)
     elif dataset == 'camelyon':
         data_loader = build_camelyon_dataloader(cfg, training, distributed)
+    elif dataset == 'rsna':
+        data_loader = build_rsna_dataloader(cfg, training, distributed)
     elif dataset == 'mvtec':
         data_loader = build_mvtec_dataloader(cfg, training, distributed, category=category)
     else:
@@ -57,7 +59,7 @@ def build_dataloader(cfg_dataset, distributed=True, category='carpet'):
     if cfg_dataset.get("test", None):
         test_loader = build(cfg_dataset, training=False, distributed=distributed, category=category)
     logger.info("build dataset done")
-    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon', 'mvtec']:
+    if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon', 'mvtec', 'rsna']:
         print("test loader len", len(test_loader[0]), len(test_loader[1]))
         return train_loader, test_loader[0], test_loader[1]
     else:

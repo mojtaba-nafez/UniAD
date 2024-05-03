@@ -135,7 +135,7 @@ def main():
             load_path = os.path.join(config.exp_path, load_path)
         load_state(load_path, model)
 
-    if config.dataset.get('type') in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon', 'mvtec']:
+    if config.dataset.get('type') in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon', 'mvtec', 'rsna']:
         train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False, category=args.category)
     else:
         train_loader, val_loader1 = build_dataloader(config.dataset, distributed=False)
