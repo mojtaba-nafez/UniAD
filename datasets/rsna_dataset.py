@@ -20,7 +20,7 @@ import pandas as pd
 logger = logging.getLogger("global_logger")
 
 
-def build_isic_dataloader(cfg, training, distributed=True):
+def build_rsna_dataloader(cfg, training, distributed=True):
     logger.info("building rsna dataset")
     transform = transforms.Compose([
         transforms.Resize((cfg["input_size"][0], cfg["input_size"][1])),

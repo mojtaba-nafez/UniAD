@@ -10,6 +10,7 @@ from datasets.waterbirds_dataset import build_waterbirds_dataloader
 from datasets.brain_dataset import build_brain_dataloader
 from datasets.isic_dataset import build_isic_dataloader
 from datasets.aptos_dataset import build_aptos_dataloader
+from datasets.rsna_dataset import build_rsna_dataloader
 
 logger = logging.getLogger("global")
 
