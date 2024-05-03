@@ -42,6 +42,7 @@ parser.add_argument('--batch_size', help='batch_size',
                     default=128, type=int)
 parser.add_argument('--model_type', help='backbone of model',
                     default="models.backbones.efficientnet_b4", type=str)
+parser.add_argument('--category', type=str, default='carpet')
 
 
 def main():
@@ -135,7 +136,7 @@ def main():
         load_state(load_path, model)
 
     if config.dataset.get('type') in ['waterbirds', 'brain', 'isic', 'aptos', 'camelyon', 'mvtec']:
-        train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False)
+        train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False, category=args.category)
     else:
         train_loader, val_loader1 = build_dataloader(config.dataset, distributed=False)
         val_loader2 = val_loader1

@@ -38,10 +38,10 @@ def build_mvtec_dataloader(cfg, training, distributed=False, category='carpet'):
             mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
         ), ])
 
-
     if training:
         dataset = MVTEC(root='/kaggle/input/mvtec-ad/', train=True, transform=transform, category=category,
-                      resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=1)
+                        resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True,
+                        shrink_factor=1)
         sampler = RandomSampler(dataset)
         data_loader = DataLoader(
             dataset,
@@ -52,9 +52,11 @@ def build_mvtec_dataloader(cfg, training, distributed=False, category='carpet'):
         )
         return data_loader
     dataset_main = MVTEC(root='/kaggle/input/mvtec-ad/', train=False, transform=transform, category=category,
-                      resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=1)
+                         resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True,
+                         shrink_factor=1)
     dataset_shifted = MVTEC(root='/kaggle/input/mvtec-ad/', train=False, transform=transform, category=category,
-                      resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True, shrink_factor=0.9)
+                            resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True,
+                            shrink_factor=0.9)
     sampler = RandomSampler(dataset_main)
     data_loader = DataLoader(
         dataset_main,
@@ -122,8 +124,6 @@ class IMAGENET30_TEST_DATASET(Dataset):
         return image, label
 
 
-
-
 # This is a modified version of original  https://github.com/pytorch/vision/blob/master/torchvision/datasets/cifar.py
 # This file and the mvtec data directory must be in the same directory, such that:
 # /.../this_directory/mvtecDataset.py
@@ -183,6 +183,7 @@ class MVTEC(data.Dataset):
                  select_random_image_from_imagenet=False, shrink_factor=0.9):
         self.root = os.path.expanduser(root)
         self.transform = transform
+        self.category = category
         self.target_transform = target_transform
         self.train = train
         self.resize = resize
@@ -261,7 +262,8 @@ class MVTEC(data.Dataset):
         img = Image.fromarray(img)
 
         if self.select_random_image_from_imagenet:
-            imagenet30_img = self.imagenet30_testset[int(random.random() * len(self.imagenet30_testset))][0].resize((224, 224))
+            imagenet30_img = self.imagenet30_testset[int(random.random() * len(self.imagenet30_testset))][0].resize(
+                (224, 224))
         else:
             imagenet30_img = self.imagenet30_testset[100][0].resize((224, 224))
 
@@ -286,7 +288,7 @@ class MVTEC(data.Dataset):
         state = 'train' if self.train else 'test'
 
         ret = {
-            'filename': f'{state}_{index}',
+            'filename': f'{state}_{self.category}_{index}',
             'image': img,
             'height': height,
             'width': width,
