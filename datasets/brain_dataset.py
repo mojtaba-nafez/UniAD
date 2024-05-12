@@ -30,16 +30,12 @@ def build_brain_dataloader(cfg, training, distributed=True):
             mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
         ), ])
 
-    prepare_br35h_dataset_files()
-    prepare_brats2015_dataset_files()
-
-    train_data = BrainTrain(transform=transform)
-
-    test_data1 = BrainTest(transform=transform, test_id=1)
-    test_data2 = BrainTest(transform=transform, test_id=2)
-
 
     if training:
+        prepare_br35h_dataset_files()
+        prepare_brats2015_dataset_files()
+
+        train_data = BrainTrain(transform=transform)
         dataset = train_data
         sampler = RandomSampler(dataset)
         data_loader = DataLoader(
@@ -50,6 +46,8 @@ def build_brain_dataloader(cfg, training, distributed=True):
             sampler=sampler,
         )
         return data_loader
+    test_data1 = BrainTest(transform=transform, test_id=1)
+    test_data2 = BrainTest(transform=transform, test_id=2)
     dataset_main = test_data1
     dataset_shifted = test_data2
     sampler = RandomSampler(dataset_main)
