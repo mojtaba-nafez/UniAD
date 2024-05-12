@@ -21,6 +21,7 @@ logger = logging.getLogger("global_logger")
 def build_mnist_dataloader(cfg, training, distributed=True):
     logger.info("building wbc dataset")
     transform = transforms.Compose([
+        transforms.ToPILImage(),
         transforms.Resize((cfg["input_size"][0], cfg["input_size"][1])),
         transforms.ToTensor(),
         transforms.Normalize(
