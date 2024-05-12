@@ -157,6 +157,7 @@ def main():
     loaders = [train_loader, val_loader1, val_loader2]
     for loader in loaders:
         it = next(iter(loader))
+        print('it:', it)
         print(it.keys())
         print(len(it['filename']))
         print(len(it['image']))
