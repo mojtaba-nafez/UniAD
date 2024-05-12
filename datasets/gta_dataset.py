@@ -83,7 +83,7 @@ def build_gta_dataloader(cfg, training, distributed=True):
 
     if training:
         dataset = GTA(image_path=normal_path_train, labels=train_label,
-                     transform=transform)
+                      transform=transform)
         sampler = RandomSampler(dataset)
         data_loader = DataLoader(
             dataset,
@@ -94,9 +94,9 @@ def build_gta_dataloader(cfg, training, distributed=True):
         )
         return data_loader
     dataset_main = GTA_Test(image_path=test_path, labels=test_label,
-                          transform=transform)
+                            transform=transform)
     dataset_shifted = GTA_Test(image_path=glob_test_id + glob_ood, labels=[0] * len(glob_test_id) + [1] * len(glob_ood),
-                          transform=transform)
+                               transform=transform)
 
     sampler = RandomSampler(dataset_main)
     data_loader = DataLoader(
@@ -163,12 +163,12 @@ class GTA(Dataset):
         self.image_files = image_path
         self.labels = labels
         if count != -1:
-            if count<len(self.image_files):
+            if count < len(self.image_files):
                 self.image_files = self.image_files[:count]
                 self.labels = self.labels[:count]
             else:
                 t = len(self.image_files)
-                for i in range(count-t):
+                for i in range(count - t):
                     self.image_files.append(random.choice(self.image_files[:t]))
                     self.labels.append(random.choice(self.labels[:t]))
 
@@ -178,7 +178,20 @@ class GTA(Dataset):
         image = image.convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
-        return image, self.labels[index]
+
+        height = image.shape[1]
+        width = image.shape[2]
+
+        ret = {
+            'filename': os.path.basename(image_file),
+            'image': image,
+            'height': height,
+            'width': width,
+            'label': self.labels[index],
+            'clsname': 'isic',
+            'mask': zeros if self.labels[index] == 0 else ones
+        }
+        return ret
 
     def __len__(self):
         return len(self.image_files)
@@ -190,12 +203,12 @@ class GTA_Test(Dataset):
         self.image_files = image_path
         self.labels = labels
         if count != -1:
-            if count<len(self.image_files):
+            if count < len(self.image_files):
                 self.image_files = self.image_files[:count]
                 self.labels = self.labels[:count]
             else:
                 t = len(self.image_files)
-                for i in range(count-t):
+                for i in range(count - t):
                     self.image_files.append(random.choice(self.image_files[:t]))
                     self.labels.append(random.choice(self.labels[:t]))
 
@@ -205,9 +218,19 @@ class GTA_Test(Dataset):
         image = image.convert('RGB')
         if self.transform is not None:
             image = self.transform(image)
-        return image, 1, self.labels[index], image_file
+        height = image.shape[1]
+        width = image.shape[2]
+
+        ret = {
+            'filename': os.path.basename(image_file),
+            'image': image,
+            'height': height,
+            'width': width,
+            'label': self.labels[index],
+            'clsname': 'isic',
+            'mask': zeros if self.labels[index] == 0 else ones
+        }
+        return ret
 
     def __len__(self):
         return len(self.image_files)
-
-
