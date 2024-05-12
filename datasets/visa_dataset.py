@@ -22,7 +22,7 @@ logger = logging.getLogger("global_logger")
 def build_visa_dataloader(cfg, training, distributed=True, category='candle'):
     logger.info("building wbc dataset")
     transform = transforms.Compose([
-        transforms.ToPILImage(),
+        # transforms.ToPILImage(),
         transforms.Resize((cfg["input_size"][0], cfg["input_size"][1])),
         transforms.ToTensor(),
         transforms.Normalize(
