@@ -4,6 +4,8 @@ import logging
 import os.path
 import pickle
 import random
+import shutil
+from pathlib import Path
 from typing import Any, List
 
 import numpy as np
@@ -28,27 +30,17 @@ def build_brain_dataloader(cfg, training, distributed=True):
             mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)
         ), ])
 
-    train_normal_path = glob('./Br35H/dataset/train/normal/*')
-    test_normal_path = glob('./Br35H/dataset/test/normal/*')
-    test_anomaly_path = glob('./Br35H/dataset/test/anomaly/*')
-    test_path = test_normal_path + test_anomaly_path
+    prepare_br35h_dataset_files()
+    prepare_brats2015_dataset_files()
 
-    normal_train_brats = glob('./brats/dataset/train/normal/*')
-    normal_test_brats = glob('./brats/dataset/test/normal/*')
-    anomaly_brats = glob('./brats/dataset/test/anomaly/*')
-    brats_test_path = normal_test_brats + anomaly_brats
+    train_data = BrainTrain(transform=transform)
 
-
-    ### ADDING 150 Exposures
-    random.seed(1)
-    random_brats_images = random.sample(normal_train_brats, 150)
-    train_normal_path.extend(random_brats_images)
-    #########################
+    test_data1 = BrainTest(transform=transform, test_id=1)
+    test_data2 = BrainTest(transform=transform, test_id=2)
 
 
     if training:
-        dataset = Brain_MRI(image_path=train_normal_path, labels=[0]*len(train_normal_path),
-                            transform=transform)
+        dataset = train_data
         sampler = RandomSampler(dataset)
         data_loader = DataLoader(
             dataset,
@@ -58,10 +50,8 @@ def build_brain_dataloader(cfg, training, distributed=True):
             sampler=sampler,
         )
         return data_loader
-    dataset_main = Brain_MRI(image_path=test_path, labels=[0]*len(test_normal_path)+[1]*len(test_anomaly_path),
-                            transform=transform)
-    dataset_shifted = Brain_MRI(image_path=brats_test_path, labels=[0]*len(normal_test_brats)+[1]*len(anomaly_brats),
-                            transform=transform)
+    dataset_main = test_data1
+    dataset_shifted = test_data2
     sampler = RandomSampler(dataset_main)
     data_loader = DataLoader(
         dataset_main,
@@ -81,42 +71,142 @@ def build_brain_dataloader(cfg, training, distributed=True):
     return data_loader, data_loader2
 
 
-class Brain_MRI(Dataset):
-    def __init__(self, image_path, labels, transform=None, count=-1):
+class BrainTest(torch.utils.data.Dataset):
+    def __init__(self, transform, test_id=1):
+
         self.transform = transform
-        self.image_files = image_path
-        self.labels = labels
-        if count != -1:
-            if count < len(self.image_files):
-                self.image_files = self.image_files[:count]
-                self.labels = self.labels[:count]
-            else:
-                t = len(self.image_files)
-                for i in range(count - t):
-                    self.image_files.append(random.choice(self.image_files[:t]))
-                    self.labels.append(random.choice(self.labels[:t]))
+        self.test_id = test_id
 
-    def __getitem__(self, index):
-        image_file = self.image_files[index]
-        image = Image.open(image_file)
-        image = image.convert('RGB')
-        if self.transform is not None:
-            image = self.transform(image)
-        height = image.shape[1]
-        width = image.shape[2]
+        test_normal_path = glob('./Br35H/dataset/test/normal/*')
+        test_anomaly_path = glob('./Br35H/dataset/test/anomaly/*')
 
-        ret = {
-            'filename': os.path.basename(image_file),
-            'image': image,
-            'height': height,
-            'width': width,
-            'label': self.labels[index],
-            'clsname': 'brain',
-            'mask': torch.zeros((1, height, width)) if self.labels[index] == 0 else torch.ones((1, height, width))
-        }
-        return ret
+        self.test_path = test_normal_path + test_anomaly_path
+        self.test_label = [0] * len(test_normal_path) + [1] * len(test_anomaly_path)
+
+        if self.test_id == 2:
+            test_normal_path = glob('./brats/dataset/test/normal/*')
+            test_anomaly_path = glob('./brats/dataset/test/anomaly/*')
+
+            self.test_path = test_normal_path + test_anomaly_path
+            self.test_label = [0] * len(test_normal_path) + [1] * len(test_anomaly_path)
 
     def __len__(self):
-        return len(self.image_files)
+        return len(self.test_path)
 
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        img_path = self.test_path[idx]
+        img = Image.open(img_path).convert('RGB')
+        img = self.transform(img)
+
+        has_anomaly = 0 if self.test_label[idx] == 0 else 1
+
+        # return img, , has_anomaly, img_path
+        return img, has_anomaly
+
+
+class BrainTrain(torch.utils.data.Dataset):
+    def __init__(self, transform):
+        self.transform = transform
+        self.image_paths = glob('./Br35H/dataset/train/normal/*')
+        brats_mod = glob('./brats/dataset/train/normal/*')
+        random.seed(1)
+        random_brats_images = random.sample(brats_mod, 50)
+        self.image_paths.extend(random_brats_images)
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, idx):
+        img_path = self.image_paths[idx]
+        img = Image.open(img_path).convert('RGB')
+        img = self.transform(img)
+        return img, 0
+
+
+def prepare_br35h_dataset_files():
+    normal_path35 = '/kaggle/input/brain-tumor-detection/no'
+    anomaly_path35 = '/kaggle/input/brain-tumor-detection/yes'
+
+    print(f"len(os.listdir(normal_path35)): {len(os.listdir(normal_path35))}")
+    print(f"len(os.listdir(anomaly_path35)): {len(os.listdir(anomaly_path35))}")
+
+    Path('./Br35H/dataset/test/anomaly').mkdir(parents=True, exist_ok=True)
+
+    flist = [f for f in os.listdir('./Br35H/dataset/test/anomaly')]
+    for f in flist:
+        os.remove(os.path.join('./Br35H/dataset/test/anomaly', f))
+
+    anom35 = os.listdir(anomaly_path35)
+    for f in anom35:
+        shutil.copy2(os.path.join(anomaly_path35, f), './Br35H/dataset/test/anomaly')
+
+
+    normal35 = os.listdir(normal_path35)
+    random.shuffle(normal35)
+    ratio = 0.7
+    sep = round(len(normal35) * ratio)
+
+    Path('./Br35H/dataset/test/normal').mkdir(parents=True, exist_ok=True)
+    Path('./Br35H/dataset/train/normal').mkdir(parents=True, exist_ok=True)
+
+    flist = [f for f in os.listdir('./Br35H/dataset/test/normal')]
+    for f in flist:
+        os.remove(os.path.join('./Br35H/dataset/test/normal', f))
+
+    flist = [f for f in os.listdir('./Br35H/dataset/train/normal')]
+    for f in flist:
+        os.remove(os.path.join('./Br35H/dataset/train/normal', f))
+
+    for f in normal35[:sep]:
+        shutil.copy2(os.path.join(normal_path35, f), './Br35H/dataset/train/normal')
+    for f in normal35[sep:]:
+        shutil.copy2(os.path.join(normal_path35, f), './Br35H/dataset/test/normal')
+
+
+def prepare_brats2015_dataset_files():
+    labels = pd.read_csv('/kaggle/input/brain-tumor/Brain Tumor.csv')
+    labels = labels[['Image', 'Class']]
+    labels.tail() # 0: no tumor, 1: tumor
+
+    labels.head()
+
+    brats_path = '/kaggle/input/brain-tumor/Brain Tumor/Brain Tumor'
+    lbl = dict(zip(labels.Image, labels.Class))
+
+    keys = lbl.keys()
+    normalbrats = [x for x in keys if lbl[x] == 0]
+    anomalybrats = [x for x in keys if lbl[x] == 1]
+
+    Path('./brats/dataset/test/anomaly').mkdir(parents=True, exist_ok=True)
+    Path('./brats/dataset/test/normal').mkdir(parents=True, exist_ok=True)
+    Path('./brats/dataset/train/normal').mkdir(parents=True, exist_ok=True)
+
+    flist = [f for f in os.listdir('./brats/dataset/test/anomaly')]
+    for f in flist:
+        os.remove(os.path.join('./brats/dataset/test/anomaly', f))
+
+    flist = [f for f in os.listdir('./brats/dataset/test/normal')]
+    for f in flist:
+        os.remove(os.path.join('./brats/dataset/test/normal', f))
+
+    flist = [f for f in os.listdir('./brats/dataset/train/normal')]
+    for f in flist:
+        os.remove(os.path.join('./brats/dataset/train/normal', f))
+
+    ratio = 0.7
+    random.shuffle(normalbrats)
+    bratsep = round(len(normalbrats) * ratio)
+
+    for f in anomalybrats:
+        ext = f'{f}.jpg'
+        shutil.copy2(os.path.join(brats_path, ext), './brats/dataset/test/anomaly')
+    for f in normalbrats[:bratsep]:
+        ext = f'{f}.jpg'
+        shutil.copy2(os.path.join(brats_path, ext), './brats/dataset/train/normal')
+    for f in normalbrats[bratsep:]:
+        ext = f'{f}.jpg'
+        shutil.copy2(os.path.join(brats_path, ext), './brats/dataset/test/normal')
 
