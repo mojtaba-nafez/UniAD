@@ -110,7 +110,7 @@ class MNIST_Dataset(Dataset):
             'mask': torch.zeros((1, height, width)) if target == 0 else torch.ones((1, height, width))
         }
 
-        return image, self.labels[index]
+        return ret
 
     def __len__(self):
         return len(self.images)
