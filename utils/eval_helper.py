@@ -37,7 +37,6 @@ def dump(save_dir, outputs):
 
 def merge_together(save_dir):
     npz_file_list = glob.glob(os.path.join(save_dir, "*.npz"))
-    print(npz_file_list)
     fileinfos = []
     preds = []
     masks = []
@@ -54,7 +53,6 @@ def merge_together(save_dir):
         )
         preds.append(npz["pred"])
         masks.append(npz["mask"])
-    print('!!!', preds)
     preds = np.concatenate(np.asarray(preds), axis=0)  # N x H x W
     masks = np.concatenate(np.asarray(masks), axis=0)  # N x H x W
     return fileinfos, preds, masks
