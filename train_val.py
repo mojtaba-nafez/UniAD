@@ -136,6 +136,7 @@ def main():
 
     if config.dataset.get('type') in ['waterbirds', 'brain', 'isic', 'aptos', 'wbc', 'mnist', 'fmnist']:
         train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False)
+        print('here')
     else:
         train_loader, val_loader1 = build_dataloader(config.dataset, distributed=False)
         val_loader2 = val_loader1

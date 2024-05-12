@@ -133,6 +133,8 @@ def prepare_br35h_dataset_files():
     print(f"len(os.listdir(normal_path35)): {len(os.listdir(normal_path35))}")
     print(f"len(os.listdir(anomaly_path35)): {len(os.listdir(anomaly_path35))}")
 
+    print('cnt')
+
     Path('./Br35H/dataset/test/anomaly').mkdir(parents=True, exist_ok=True)
 
     flist = [f for f in os.listdir('./Br35H/dataset/test/anomaly')]
