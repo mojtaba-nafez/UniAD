@@ -54,7 +54,9 @@ def merge_together(save_dir):
         preds.append(npz["pred"])
         masks.append(npz["mask"])
     preds = np.concatenate(np.asarray(preds), axis=0)  # N x H x W
+    print('merge_together_preds:', preds.shape)
     masks = np.concatenate(np.asarray(masks), axis=0)  # N x H x W
+    print('merge_together_masks:', masks.shape)
     return fileinfos, preds, masks
 
 
