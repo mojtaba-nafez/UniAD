@@ -18,7 +18,7 @@ from torch.utils.data.sampler import RandomSampler
 logger = logging.getLogger("global_logger")
 
 
-def build_mnist_dataloader(cfg, training, distributed=True):
+def build_visa_dataloader(cfg, training, distributed=True):
     logger.info("building wbc dataset")
     transform = transforms.Compose([
         transforms.ToPILImage(),
