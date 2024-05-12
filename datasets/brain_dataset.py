@@ -97,12 +97,25 @@ class BrainTest(torch.utils.data.Dataset):
 
         img_path = self.test_path[idx]
         img = Image.open(img_path).convert('RGB')
-        img = self.transform(img)
+        image = self.transform(img)
 
         has_anomaly = 0 if self.test_label[idx] == 0 else 1
 
         # return img, , has_anomaly, img_path
-        return img, has_anomaly
+        height = image.shape[1]
+        width = image.shape[2]
+
+        ret = {
+            'filename': img_path,
+            'image': image,
+            'height': height,
+            'width': width,
+            'label': has_anomaly,
+            'clsname': 'mnist',
+            'mask': torch.zeros((1, height, width)) if has_anomaly == 0 else torch.ones((1, height, width))
+        }
+
+        return ret
 
 
 class BrainTrain(torch.utils.data.Dataset):
@@ -120,8 +133,21 @@ class BrainTrain(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         img_path = self.image_paths[idx]
         img = Image.open(img_path).convert('RGB')
-        img = self.transform(img)
-        return img, 0
+        image = self.transform(img)
+        height = image.shape[1]
+        width = image.shape[2]
+
+        ret = {
+            'filename': img_path,
+            'image': image,
+            'height': height,
+            'width': width,
+            'label': 0,
+            'clsname': 'mnist',
+            'mask': torch.zeros((1, height, width)) if 0 == 0 else torch.ones((1, height, width))
+        }
+
+        return ret
 
 
 def prepare_br35h_dataset_files():
