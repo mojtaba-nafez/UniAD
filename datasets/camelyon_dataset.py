@@ -23,7 +23,7 @@ zeros = torch.zeros((1, 224, 224))
 
 
 def build_camelyon_dataloader(cfg, training, distributed=True):
-    logger.info("building aptos dataset")
+    logger.info("building camelyon dataset")
     transform = transforms.Compose([
         transforms.Resize((cfg["input_size"][0], cfg["input_size"][1])),
         transforms.ToTensor(),
