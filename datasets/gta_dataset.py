@@ -143,12 +143,12 @@ class Camelyon(Dataset):
         width = image.shape[2]
 
         ret = {
-            'filename': os.path.basename(image_file),
+            'filename': image_file,
             'image': image,
             'height': height,
             'width': width,
             'label': self.labels[index],
-            'clsname': 'isic',
+            'clsname': 'camelyon',
             'mask': zeros if self.labels[index] == 0 else ones
         }
         return ret
@@ -183,12 +183,12 @@ class GTA(Dataset):
         width = image.shape[2]
 
         ret = {
-            'filename': os.path.basename(image_file),
+            'filename': image_file,
             'image': image,
             'height': height,
             'width': width,
             'label': self.labels[index],
-            'clsname': 'isic',
+            'clsname': 'gta',
             'mask': zeros if self.labels[index] == 0 else ones
         }
         return ret
@@ -222,12 +222,12 @@ class GTA_Test(Dataset):
         width = image.shape[2]
 
         ret = {
-            'filename': os.path.basename(image_file),
+            'filename': image_file,
             'image': image,
             'height': height,
             'width': width,
             'label': self.labels[index],
-            'clsname': 'isic',
+            'clsname': 'gta',
             'mask': zeros if self.labels[index] == 0 else ones
         }
         return ret
