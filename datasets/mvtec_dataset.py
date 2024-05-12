@@ -39,9 +39,13 @@ def build_mvtec_dataloader(cfg, training, distributed=False, category='carpet'):
         ), ])
 
     if training:
-        dataset = MVTEC(root='/kaggle/input/mvtec-ad/', train=True, transform=transform, category=category,
-                        resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True,
-                        shrink_factor=1)
+        train_data = MVTEC(root='/kaggle/input/mvtec-ad', train=True, transform=transform, category=category,
+                       resize=224, use_imagenet=True, select_random_image_from_imagenet=True,
+                       shrink_factor=1)
+        padded = MVTEC(root='/kaggle/input/mvtec-ad', train=True, transform=transform, category=category,
+                       resize=224, use_imagenet=True, select_random_image_from_imagenet=True,
+                       shrink_factor=0.9, shuffle=True, ratio=0.05, pad_train=True)
+        dataset = torch.utils.data.ConcatDataset([train_data, padded])
         sampler = RandomSampler(dataset)
         data_loader = DataLoader(
             dataset,
@@ -52,10 +56,10 @@ def build_mvtec_dataloader(cfg, training, distributed=False, category='carpet'):
         )
         return data_loader
     dataset_main = MVTEC(root='/kaggle/input/mvtec-ad/', train=False, transform=transform, category=category,
-                         resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True,
+                         resize=224, use_imagenet=True, select_random_image_from_imagenet=True,
                          shrink_factor=1)
     dataset_shifted = MVTEC(root='/kaggle/input/mvtec-ad/', train=False, transform=transform, category=category,
-                            resize=224, interpolation=3, use_imagenet=True, select_random_image_from_imagenet=True,
+                            resize=224, use_imagenet=True, select_random_image_from_imagenet=True,
                             shrink_factor=0.9)
     sampler = RandomSampler(dataset_main)
     data_loader = DataLoader(
@@ -97,7 +101,7 @@ class IMAGENET30_TEST_DATASET(Dataset):
 
         # Map each class to an index
         self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(sorted(os.listdir(root_dir)))}
-        print(f"self.class_to_idx in ImageNet30_Test_Dataset:\n{self.class_to_idx}")
+        # print(f"self.class_to_idx in ImageNet30_Test_Dataset:\n{self.class_to_idx}")
 
         # Walk through the directory and collect information about the images and their labels
         for i, class_name in enumerate(os.listdir(root_dir)):
@@ -162,88 +166,36 @@ def center_paste(large_img, small_img):
 
 
 class MVTEC(data.Dataset):
-    """`MVTEC <https://www.mvtec.com/company/research/datasets/mvtec-ad/>`_ Dataset.
-    Args:
-        root (string): Root directory of dataset where directories
-            ``bottle``, ``cable``, etc., exists.
-        train (bool, optional): If True, creates dataset from training set, otherwise
-            creates from test set.
-        transform (callable, optional): A function/transform that  takes in an PIL image
-            and returns a transformed version. E.g, ``transforms.RandomCrop``
-        target_transform (callable, optional): A function/transform that takes in the
-            target and transforms it.
-        resize (int, optional): Desired output image size.
-        interpolation (int, optional): Interpolation method for downsizing image.
-        category: bottle, cable, capsule, etc.
-    """
 
     def __init__(self, root, train=True,
-                 transform=None, target_transform=None,
-                 category='carpet', resize=None, interpolation=2, use_imagenet=False,
-                 select_random_image_from_imagenet=False, shrink_factor=0.9):
-        self.root = os.path.expanduser(root)
+                 transform=None,
+                 category='carpet', resize=None, use_imagenet=False,
+                 select_random_image_from_imagenet=False, shrink_factor=0.9, shuffle=False, ratio=1, pad_train=False):
+        self.root = root
         self.transform = transform
+        self.image_files = []
         self.category = category
-        self.target_transform = target_transform
+        print("category MVTecDataset:", category)
+        if train:
+            self.image_files = glob(os.path.join(root, category, "train", "good", "*.png"))
+        else:
+            image_files = glob(os.path.join(root, category, "test", "*", "*.png"))
+            self.image_files = image_files
+        self.image_files.sort(key=lambda y: y.lower())
         self.train = train
         self.resize = resize
+        self.use_imagenet = use_imagenet
         if use_imagenet:
             self.resize = int(resize * shrink_factor)
-        self.interpolation = interpolation
         self.select_random_image_from_imagenet = select_random_image_from_imagenet
         self.imagenet30_testset = IMAGENET30_TEST_DATASET()
+        self.pad_train = pad_train
 
-        # load images for training
-        if self.train:
-            self.train_data = []
-            self.train_labels = []
-            cwd = os.getcwd()
-            print(category)
-            trainFolder = self.root + category + '/train/good/'
-            os.chdir(trainFolder)
-            filenames = [f.name for f in os.scandir()]
-            for file in filenames:
-                img = mpimg.imread(file)
-                img = img * 255
-                img = img.astype(np.uint8)
-                self.train_data.append(img)
-                self.train_labels.append(0)
-            os.chdir(cwd)
-            print(cwd)
-
-            self.train_data = np.array(self.train_data)
-        else:
-            # load images for testing
-            self.test_data = []
-            self.test_labels = []
-
-            cwd = os.getcwd()
-            testFolder = self.root + category + '/test/'
-            os.chdir(testFolder)
-            subfolders = [sf.name for sf in os.scandir() if sf.is_dir()]
-            #             print(subfolders)
-            cwsd = os.getcwd()
-            print(cwsd)
-
-            # for every subfolder in test folder
-            for subfolder in subfolders:
-                label = 1
-                if subfolder == 'good':
-                    label = 0
-                testSubfolder = testFolder + subfolder + '/'
-                #                 print(testSubfolder)
-                os.chdir(testSubfolder)
-                filenames = [f.name for f in os.scandir()]
-                for file in filenames:
-                    img = mpimg.imread(file)
-                    img = img * 255
-                    img = img.astype(np.uint8)
-                    self.test_data.append(img)
-                    self.test_labels.append(label)
-                os.chdir(cwsd)
-            os.chdir(cwd)
-
-            self.test_data = np.array(self.test_data)
+        if shuffle:
+            random.seed(42)
+            random.shuffle(self.image_files)
+            sep = int(ratio * len(self.image_files))
+            self.image_files = self.image_files[:sep]
 
     def __getitem__(self, index):
         """
@@ -252,14 +204,33 @@ class MVTEC(data.Dataset):
         Returns:
             tuple: (image, target) where target is index of the target class.
         """
-        if self.train:
-            img, target = self.train_data[index], self.train_labels[index]
-        else:
-            img, target = self.test_data[index], self.test_labels[index]
+        image_file = self.image_files[index]
+        image = Image.open(image_file)
+        image = image.convert('RGB')
+        if self.transform is not None and self.train:
+            image = self.transform(image)
+        to_pil = transforms.ToPILImage()
 
-        # doing this so that it is consistent with all other datasets
-        # to return a PIL Image
-        img = Image.fromarray(img)
+        if os.path.dirname(image_file).endswith("good"):
+            target = 0
+        else:
+            target = 1
+
+        if self.train and not self.pad_train:
+            image = self.transform(image)
+            height = image.shape[1]
+            width = image.shape[2]
+            state = 'train' if self.train else 'test'
+            ret = {
+                'filename': f'{state}_{self.pad_train}_{self.category}_{index}',
+                'image': image,
+                'height': height,
+                'width': width,
+                'label': target,
+                'clsname': 'mvtec',
+                'mask': torch.zeros((1, height, width)) if target == 0 else torch.ones((1, height, width))
+            }
+            return ret
 
         if self.select_random_image_from_imagenet:
             imagenet30_img = self.imagenet30_testset[int(random.random() * len(self.imagenet30_testset))][0].resize(
@@ -268,28 +239,23 @@ class MVTEC(data.Dataset):
             imagenet30_img = self.imagenet30_testset[100][0].resize((224, 224))
 
         # if resizing image
-        if self.resize is not None:
-            resizeTransf = transforms.Resize(self.resize, self.interpolation)
-            img = resizeTransf(img)
+        if self.use_imagenet and self.resize is not None:
+            resizeTransf = transforms.Resize((self.resize, self.resize))
+            image = resizeTransf(image)
 
         #         print(f"imagenet30_img.size: {imagenet30_img.size}")
         #         print(f"img.size: {img.size}")
-        img = center_paste(imagenet30_img, img)
+        image = center_paste(imagenet30_img, image)
+        image = self.transform(image)
 
-        if self.transform is not None:
-            img = self.transform(img)
-
-        # if self.target_transform is not None:
-        #     target = self.target_transform(target)
-
-        height = img.shape[1]
-        width = img.shape[2]
+        height = image.shape[1]
+        width = image.shape[2]
 
         state = 'train' if self.train else 'test'
 
         ret = {
-            'filename': f'{state}_{self.category}_{index}',
-            'image': img,
+            'filename': f'{state}_{self.pad_train}_{self.category}_{index}',
+            'image': image,
             'height': height,
             'width': width,
             'label': target,
@@ -300,13 +266,4 @@ class MVTEC(data.Dataset):
         return ret
 
     def __len__(self):
-        """
-        Args:
-            None
-        Returns:
-            int: length of array.
-        """
-        if self.train:
-            return len(self.train_data)
-        else:
-            return len(self.test_data)
+        return len(self.image_files)
