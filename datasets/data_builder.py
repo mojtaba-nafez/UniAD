@@ -15,7 +15,7 @@ from datasets.wbc_dataset import build_wbc_dataloader
 logger = logging.getLogger("global")
 
 
-def build(cfg, training, distributed):
+def build(cfg, training, distributed, category):
     if training:
         cfg.update(cfg.get("train", {}))
     else:
@@ -45,22 +45,22 @@ def build(cfg, training, distributed):
     elif dataset == 'fmnist':
         data_loader = build_fmnist_dataloader(cfg, training, distributed)
     elif dataset == 'visa':
-        data_loader = build_visa_dataloader(cfg, training, distributed)
+        data_loader = build_visa_dataloader(cfg, training, distributed, category)
     else:
         raise NotImplementedError(f"{dataset} is not supported")
 
     return data_loader
 
 
-def build_dataloader(cfg_dataset, distributed=True):
+def build_dataloader(cfg_dataset, distributed=True, category=None):
     train_loader = None
     if cfg_dataset.get("train", None):
-        train_loader = build(cfg_dataset, training=True, distributed=distributed)
+        train_loader = build(cfg_dataset, training=True, distributed=distributed, category=category)
     print("train loader len", len(train_loader))
 
     test_loader = None
     if cfg_dataset.get("test", None):
-        test_loader = build(cfg_dataset, training=False, distributed=distributed)
+        test_loader = build(cfg_dataset, training=False, distributed=distributed, category=category)
     logger.info("build dataset done")
     if cfg_dataset.get('type', None) in ['waterbirds', 'brain', 'isic', 'aptos', 'wbc', 'mnist', 'fmnist', 'visa']:
         print("test loader len", len(test_loader[0]), len(test_loader[1]))

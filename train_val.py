@@ -36,6 +36,8 @@ parser.add_argument("-e", "--evaluate", action="store_true")
 parser.add_argument("--local_rank", default=None, help="local rank for dist")
 parser.add_argument('--normal_labels', help='normal_labels',
                     default="0,1,2,3,4", type=str)
+parser.add_argument('--category', help='visa category',
+                    default="candle", type=str)
 parser.add_argument('--epochs', help='epochs',
                     default=200, type=int)
 parser.add_argument('--batch_size', help='batch_size',
@@ -134,9 +136,10 @@ def main():
             load_path = os.path.join(config.exp_path, load_path)
         load_state(load_path, model)
 
-    if config.dataset.get('type') in ['waterbirds', 'brain', 'isic', 'aptos', 'wbc', 'mnist', 'fmnist', 'visa']:
+    if config.dataset.get('type') in ['waterbirds', 'brain', 'isic', 'aptos', 'wbc', 'mnist', 'fmnist']:
         train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False)
-        print('here')
+    elif config.dataset.get('type') == 'visa':
+        train_loader, val_loader1, val_loader2 = build_dataloader(config.dataset, distributed=False, category=args.category)
     else:
         train_loader, val_loader1 = build_dataloader(config.dataset, distributed=False)
         val_loader2 = val_loader1
