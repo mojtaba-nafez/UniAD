@@ -169,16 +169,16 @@ eval_lookup_table = {
 }
 
 
-def performances(fileinfos, preds, masks, config):
+def performances(config, outputs=None):
     ret_metrics = {}
-    clsnames = set([fileinfo["clsname"] for fileinfo in fileinfos])
+    clsnames = set([fileinfo["clsname"] for fileinfo in outputs])
     for clsname in clsnames:
         preds_cls = []
         masks_cls = []
-        for fileinfo, pred, mask in zip(fileinfos, preds, masks):
+        for fileinfo in outputs:
             if fileinfo["clsname"] == clsname:
-                preds_cls.append(pred[None, ...])
-                masks_cls.append(mask[None, ...])
+                preds_cls.append(fileinfo['pred'][None, ...])
+                masks_cls.append(fileinfo['mask'][None, ...])
         preds_cls = np.concatenate(np.asarray(preds_cls), axis=0)  # N x H x W
         masks_cls = np.concatenate(np.asarray(masks_cls), axis=0)  # N x H x W
         data_meta = EvalDataMeta(preds_cls, masks_cls)

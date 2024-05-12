@@ -331,12 +331,13 @@ def validate(val_loader, model):
         os.makedirs(config.evaluator.eval_dir, exist_ok=True)
     # all threads write to config.evaluator.eval_dir, it must be made before every thread begin to write
     # dist.barrier()
-
+    output = []
     with torch.no_grad():
         for i, input in enumerate(val_loader):
             # forward
             outputs = model(input)
-            dump(config.evaluator.eval_dir, outputs)
+            output.append(outputs)
+            # dump(config.evaluator.eval_dir, outputs)
 
             # record loss
             loss = 0
@@ -370,10 +371,10 @@ def validate(val_loader, model):
         logger.info("Gathering final results ...")
         # total loss
         logger.info(" * Loss {:.5f}\ttotal_num={}".format(final_loss, total_num.item()))
-        fileinfos, preds, masks = merge_together(config.evaluator.eval_dir)
-        shutil.rmtree(config.evaluator.eval_dir)
+        # fileinfos, preds, masks = merge_together(config.evaluator.eval_dir)
+        # shutil.rmtree(config.evaluator.eval_dir)
         # evaluate, log & vis
-        ret_metrics = performances(fileinfos, preds, masks, config.evaluator.metrics)
+        ret_metrics = performances(config.evaluator.metrics, output)
         log_metrics(ret_metrics, config.evaluator.metrics)
 
     model.train()
